@@ -1,0 +1,53 @@
+version: '2.4' # Cant use 3+ because it does not support resource-limits without swarm-mode: https://github.com/docker/compose/issues/4513
+
+services:
+
+  mongo:
+    mem_limit: ${SHIPY_STACK_SERVICE_1_MEMORY_LIMIT:-1000000000}
+    image: mongo:${SHIPY_STACK_SERVICE_1_VERSION:-latest}
+    expose:
+      - "27017"
+    restart: always
+    volumes:
+      - mongoconf:/etc/mongo
+      - mongodata:/data/db
+      - mongoconfsvr:/data/configdb
+    networks:
+      database:
+        aliases:
+         # alias with pattern PROJECTNAME_SERVICENAME must be present on all networks
+         - ${COMPOSE_PROJECT_NAME:?err}_mongo
+    env_file:
+      - .env
+    # environment overrides env_files vars
+    labels:
+      # shipy labels must be present on all services
+      # shipy.stack.id must be equal the name of the repository
+      - "shipy.stack.id=${COMPOSE_PROJECT_NAME:?err}"
+      - "shipy.stack.type=${SHIPY_STACK_TYPE:?err}"
+      - "shipy.stack.name=${SHIPY_STACK_NAME:?err}"
+      - "shipy.stack.domains=${SHIPY_STACK_DOMAINS:?err}"
+      - "shipy.stack.updated=${SHIPY_STACK_UPDATED:?err}"
+      - "shipy.stack.json=${SHIPY_STACK_JSON:?err}"
+      - "shipy.stack.service.number=1"
+      - "shipy.stack.service.name=mongo"
+      - "shipy.stack.service.version=${SHIPY_STACK_SERVICE_1_VERSION:-latest}"
+    #command: --logLevel=DEBUG
+    healthcheck:
+      test: "echo 'db.runCommand(\"ping\").ok' | mongo localhost:27017/test --quiet"
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  mongoconf:
+  mongoconfsvr:
+  mongodata:
+
+networks:
+  database:
+    external: true
+    name: database # named networks will not get removed on container update/removal
+      
+  
