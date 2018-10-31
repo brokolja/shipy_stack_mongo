@@ -54,7 +54,8 @@ services:
         VERSION: ${SHIPY_STACK_SERVICE_1_VERSION:-latest}
         MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:?err}
         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?err}
-    mongodump:
+    networks:
+      mongodump:
         aliases:
          # alias with pattern PROJECTNAME_SERVICENAME must be present on all networks
          - ${COMPOSE_PROJECT_NAME:?err}_mongodump
