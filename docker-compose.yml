@@ -7,7 +7,7 @@ services:
     image: mongo:${SHIPY_STACK_SERVICE_1_VERSION:-latest}
     expose:
       - "27017"
-    restart: always
+    restart: unless-stopped
     volumes:
       - mongoconf:/etc/mongo
       - mongodata:/data/db
@@ -17,6 +17,12 @@ services:
         aliases:
          # alias with pattern PROJECTNAME_SERVICENAME must be present on all networks
          - ${COMPOSE_PROJECT_NAME:?err}_mongo
+      mongodump:
+        aliases:
+         # alias with pattern PROJECTNAME_SERVICENAME must be present on all networks
+         - ${COMPOSE_PROJECT_NAME:?err}_mongo
+         # shortcut allowed because only mongodump container is using it
+         - mongo
     env_file:
       - .env
     # environment overrides env_files vars
@@ -40,14 +46,36 @@ services:
       retries: 3
       start_period: 5s
 
+  mongodump:
+    build:
+      context: ./
+      dockerfile: mongodump.dockerfile
+      args:
+        VERSION: ${SHIPY_STACK_SERVICE_1_VERSION:-latest}
+        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:?err}
+        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?err}
+    mongodump:
+        aliases:
+         # alias with pattern PROJECTNAME_SERVICENAME must be present on all networks
+         - ${COMPOSE_PROJECT_NAME:?err}_mongodump
+         # shortcut allowed because only mongo container is using it
+         - mongo
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - mongodump:/mongodump
+
 volumes:
   mongoconf:
   mongoconfsvr:
   mongodata:
+  mongodump:
 
 networks:
   database:
     external: true
     name: database # named networks will not get removed on container update/removal
-      
+  mongodump:
   
