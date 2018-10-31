@@ -47,6 +47,8 @@ services:
       start_period: 5s
 
   mongodump:
+    env_file:
+      - .env
     build:
       context: ./
       dockerfile: mongodump.dockerfile
