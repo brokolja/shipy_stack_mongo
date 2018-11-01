@@ -5,7 +5,7 @@ trap "exit" INT
 # docker run --rm --network=database --volumes-from=xxx_mongodump_1 mongo bash -c 'mongodump --username "test1" --password "test1" --authenticationDatabase "admin" --verbose --host "mongo" --port 27017 --gzip --archive="/mongodump/2018-10-31_20-35_mongodump.archive"'
 # mongorestore from host example:
 # docker run --rm --network=database --volume=/var/lib/docker/volumes/xxx_mongodump/_data/2018-10-31_20-26_mongodump.archive:/tmp/mongodump.archive mongo bash -c 'mongodump --username "test1" --password "test1" --authenticationDatabase "admin" --verbose --host "mongo" --port 27017 --gzip --archive="/tmp/mongodump.archive"'
-difference=$(($(date -d "4:00" +%s) - $(date +%s)))
+
 
 dumpMongo () {
   echo 'mongodump running...'
@@ -21,10 +21,18 @@ dumpMongo () {
 
 mkdir -p /mongodump
 
-if [ $difference -lt 0 ]
-then
-    dumpMongo
-    sleep $((86400 + difference))
-else
-    sleep $difference
-fi
+sleepUntilTime () {
+  difference=$(($(date -d "4:00" +%s) - $(date +%s)))
+  if [ $difference -lt 0 ]
+  then
+      dumpMongo
+      sleep 86400
+      sleepUntilTime
+  else
+      sleep difference
+      sleepUntilTime
+  fi
+}
+
+sleepUntilTime
+
