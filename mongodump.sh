@@ -8,31 +8,22 @@ trap "exit" INT
 
 
 dumpMongo () {
-  echo 'mongodump running...'
   NOW=$(date +"%Y-%m-%d_%H-%M")
   mongodump --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase "admin" --verbose --host "mongo" --port 27017 --gzip --archive="/mongodump/${NOW}_mongodump.archive"
-  echo 'mongodump cleaning...'
+  echo "Mongodump created: /mongodump/${NOW}_mongodump.archive"
   for file in $(find /mongodump/*_mongodump* -maxdepth 0 -mtime +7)
   do
-      echo "mongodump removing old backup: $file"
       rm -rf $file
+      echo "Removed very old mongodump: $file"
   done
 }
 
 mkdir -p /mongodump
 
-sleepUntilTime () {
-  difference=$(($(date -d "4:00" +%s) - $(date +%s)))
-  if [ $difference -lt 0 ]
-  then
-      dumpMongo
-      sleep 86400
-      sleepUntilTime
-  else
-      sleep difference
-      sleepUntilTime
-  fi
-}
-
-sleepUntilTime
-
+while :
+do
+    if [ $(date '+%H%M') = '0400' ]
+    then dumpMongo
+    fi
+    sleep 60
+done
