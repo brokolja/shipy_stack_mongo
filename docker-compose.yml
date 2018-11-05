@@ -69,6 +69,12 @@ services:
     restart: unless-stopped
     volumes:
       - mongodump:/mongodump
+    healthcheck:
+      test: "[ -d "/mongodump" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
 
 volumes:
   mongoconf:
