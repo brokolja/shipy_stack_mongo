@@ -62,7 +62,7 @@ services:
          # alias with pattern PROJECTNAME_SERVICENAME must be present on all networks
          - ${COMPOSE_PROJECT_NAME:?err}_mongodump
          # shortcut allowed because only mongo container is using it
-         - mongo
+         - mongodump
     depends_on:
       mongo:
         condition: service_healthy
