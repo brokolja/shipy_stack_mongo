@@ -4,7 +4,11 @@ services:
 
   mongo:
     mem_limit: ${SHIPY_STACK_SERVICE_1_MEMORY_LIMIT:-1000000000}
-    image: mongo:${SHIPY_STACK_SERVICE_1_VERSION:-latest}
+    build:
+      context: ./
+      dockerfile: mongo.dockerfile
+      args:
+        VERSION: ${SHIPY_STACK_SERVICE_1_VERSION:-latest}
     expose:
       - "27017"
     restart: unless-stopped
