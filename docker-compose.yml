@@ -4,11 +4,7 @@ services:
 
   mongo:
     mem_limit: ${SHIPY_STACK_SERVICE_1_MEMORY_LIMIT:-1000000000}
-    build:
-      context: ./
-      dockerfile: mongo.dockerfile
-      args:
-        VERSION: ${SHIPY_STACK_SERVICE_1_VERSION:-latest}
+    image: mongo:${SHIPY_STACK_SERVICE_1_VERSION:-latest}
     expose:
       - "27017"
     restart: unless-stopped
@@ -36,7 +32,6 @@ services:
       - "shipy.stack.id=${COMPOSE_PROJECT_NAME:?err}"
       - "shipy.stack.type=${SHIPY_STACK_TYPE:?err}"
       - "shipy.stack.name=${SHIPY_STACK_NAME:?err}"
-      - "shipy.stack.domains=${SHIPY_STACK_DOMAINS:?err}"
       - "shipy.stack.updated=${SHIPY_STACK_UPDATED:?err}"
       - "shipy.stack.json=${SHIPY_STACK_JSON:?err}"
       - "shipy.stack.service.number=1"

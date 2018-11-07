@@ -9,7 +9,7 @@ trap "exit" INT
 
 dumpMongo () {
   NOW=$(date +"%Y-%m-%d_%H-%M")
-  mongodump --oplog --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase "admin" --verbose --host "mongo" --port 27017 --gzip --archive="/mongodump/${NOW}_mongodump.archive"
+  mongodump --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase "admin" --verbose --host "mongo" --port 27017 --gzip --archive="/mongodump/${NOW}_mongodump.archive"
   echo "Mongodump created: /mongodump/${NOW}_mongodump.archive"
   for file in $(find /mongodump/*_mongodump* -maxdepth 0 -mtime +7)
   do
